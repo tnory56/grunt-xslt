@@ -25,7 +25,7 @@ In your project's Gruntfile, add a section named `xslt` to the data object passe
 ```js
 grunt.initConfig({
   xslt: {
-    options: {
+    replacements: {
       // Task-specific options go here.
     },
     your_target: {
@@ -37,53 +37,103 @@ grunt.initConfig({
 
 ### Options
 
-#### options.separator
-Type: `String`
-Default value: `',  '`
+#### options.replacements
+Type: `Object`
+Default value: `{}`
 
-A string value that is used to do something with whatever.
-
-#### options.punctuation
-Type: `String`
-Default value: `'.'`
-
-A string value that is used to do something else with whatever else.
+An object that is used to iterate over to make it possible to replace items in an xslt.
 
 ### Usage Examples
 
 #### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+In this example, the replacements that are used are as follows. The key in the replacements matches the value in the files objects (srcTest/custom_template.xslt).
 
-```js
-grunt.initConfig({
-  xslt: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-});
+#####custom_template.xslt
+```html
+<!-- *** START OF STYLESHEET *** -->
+
+<!-- **********************************************************************
+ XSL to format the search output for Google Search Appliance
+     ********************************************************************** -->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
+    <!-- Please enter html code below. -->
+
+    <xsl:template name="header">
+        <div>HTML IS HERE AND WILL BE REPLACED</div>
+    </xsl:template>
+
+    <xsl:template name="footer">
+        <div>HTML IS HERE AND WILL BE REPLACED</div>
+        <div>HTML IS HERE AND WILL BE REPLACED</div>
+        <div>HTML IS HERE AND WILL BE REPLACED</div>
+    </xsl:template>
+
+</xsl:stylesheet>
+
+
+        <!-- *** END OF STYLESHEET *** -->
+
 ```
 
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+#####global-header.html
+```html
+<div>Some Html Header</div>
+```
+
+
+#####global-footer.html
+```html
+<div>Some Html Footer</div>
+```
 
 ```js
 grunt.initConfig({
   xslt: {
     options: {
-      separator: ': ',
-      punctuation: ' !!!',
+        replacements:{
+                        'srcTest/custom_template.xslt' : [
+                            {
+                                'header': [
+                                    '<link rel="stylesheet" href="/gassets/global-header-footer.min.css"/>',
+                                    'srcTest/global-header.html'
+                                ]
+                            },
+                            {
+                                'footer': [
+                                    'srcTest/global-footer.html',
+                                    '<script type="text/javascript" src="/gassets/global-footer.min.js"></script>'
+                                ]
+                            }
+                        ]
+                    }
     },
     files: {
-      'dest/default_options': ['src/testing', 'src/123'],
+      'tmp/custom_template.xslt':'srcTest/custom_template.xslt'
     },
   },
 });
 ```
 
+#####Result in tmp/custom_template.xslt yields:
+
+```html
+<!-- *** START OF STYLESHEET *** --><!-- ********************************************************************** XSL to format the search output for Google Search Appliance     ********************************************************************** -->
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                version="2.0">    <!-- Please enter html code below. -->
+    <xsl:template name="header">
+        <link rel="stylesheet" href="/gassets/global-header-footer.min.css"/>
+        <div>Some Html Header</div>
+    </xsl:template>
+    <xsl:template name="footer">
+        <div>Some Html Footer</div>
+        <script type="text/javascript" src="/gassets/global-footer.min.js"></script>
+    </xsl:template>
+</xsl:stylesheet>        <!-- *** END OF STYLESHEET *** -->
+```
+
+
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+0.1.0
