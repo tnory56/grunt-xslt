@@ -8,9 +8,7 @@
 
 'use strict';
 var path = require('path');
-//var CleanCSS = require('clean-css');
 var chalk = require('chalk');
-//var maxmin = require('maxmin');
 module.exports = function (grunt) {
 
     // Please see the Grunt documentation for more information regarding task
